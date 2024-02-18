@@ -19,5 +19,8 @@ docker-compose up
 ## 本番環境での起動
 ```
 docker build -t gihyo-toreca .
-docker run --rm --name flask-container -p 80:5000 -v "$(pwd)":/app gihyo-toreca
+docker run --rm -it --name flask-container -p 80:5000 -v "$(pwd)":/app gihyo-toreca
+```
+```
+AWSで公開されているIPアドレスにアクセス
 ```
