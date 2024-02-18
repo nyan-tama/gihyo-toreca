@@ -24,3 +24,8 @@ docker run --rm -it --name flask-container -p 80:5000 -v "$(pwd)":/app gihyo-tor
 ```
 AWSで公開されているIPアドレスにアクセス
 ```
+
+## 本番環境のDocker終了
+```
+Ctrl + C
+```
