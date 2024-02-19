@@ -20,6 +20,9 @@ RUN pip install -r requirements.txt
 # AWSのデフォルトリージョンを設定
 ENV AWS_DEFAULT_REGION=ap-northeast-1  
 
+# タイムゾーンを日本時間に設定
+ENV TZ=Asia/Tokyo
+
 # コンソールの表示を変えてわかりやすく
 RUN echo "alias ls='ls --color=auto'" >> /root/.bashrc
 RUN echo "PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@app-container\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '" >> /root/.bashrc

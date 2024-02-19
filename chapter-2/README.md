@@ -1,6 +1,11 @@
-# 使用方法
-### 起動方法
+## 使用方法
 
+### Discordのボットトークンをコンソール上から設定
+```
+export DISCORD_BOT_TOKEN='あなたのボットのトークン'
+```
+
+### 起動方法
 ```
 docker-compose up
 ```
