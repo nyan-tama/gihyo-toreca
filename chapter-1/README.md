@@ -12,20 +12,5 @@ docker-compose up
 ```
 
 ### 起動確認
-
-1. ブラウザで `http://localhost:5000` にアクセスする。
-3. Hello Worldが表示されれば準備OK
-
-## 本番環境での起動
-```
-docker build -t gihyo-toreca .
-docker run --rm -it --name flask-container -p 80:5000 -v "$(pwd)":/app gihyo-toreca
-```
-```
-AWSで公開されているIPアドレスにアクセス
-```
-
-## 本番環境のDocker終了
-```
-Ctrl + C
-```
+コンテナ起動後にコンソール上にHello World!が表示されれば準備OK
+アプリはHello World!が表示されて自動で終了する

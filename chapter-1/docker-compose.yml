@@ -8,7 +8,5 @@ services:
     volumes:
       - .:/app
       - $HOME/.aws:/root/.aws
-    environment:
-      - ENVIRONMENT=development # docker-compose での時は開発モードを有効にする
 
 
