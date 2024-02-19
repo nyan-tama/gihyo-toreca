@@ -5,7 +5,7 @@
 export DISCORD_BOT_TOKEN='あなたのボットのトークン'
 ```
 
-### 起動方法
+### アプリの起動方法（Dockerの起動）
 ```
 docker-compose up
 ```
@@ -17,8 +17,13 @@ docker-compose up
 ```
 
 ### 起動確認
-コンテナ起動後にコンソール上にHello World!が表示されれば準備OK
-アプリはHello World!が表示されて自動で終了する
+コンテナ起動後にログが表示されれば準備OK
+
+### アプリの停止（Dockerの停止）
+```
+Ctrl + C
+```
+
 
 ---
 
@@ -31,4 +36,11 @@ docker build -t gihyo-toreca .
 ```
 # Dockerイメージを起動 
 docker run --rm -it --name app-container -v "$(pwd)":/app -e DISCORD_BOT_TOKEN='あなたのボットのトークン' gihyo-toreca
+```
+### 起動確認
+コンテナ起動後にログが表示されれば準備OK
+
+### アプリの停止（Dockerの停止）
+```
+Ctrl + C
 ```

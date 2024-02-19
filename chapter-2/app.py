@@ -1,4 +1,4 @@
-import discord  # discordライブラリをインポート。Discord Botの作成に必要です。
+import discord  # discord.pyライブラリをインポート。Discord Botの作成に必要です。
 from discord.ext import commands  # commandsフレームワークをインポート。コマンドベースのBotを簡単に作成できます。
 import logging  # loggingモジュールをインポート。ログ出力のために使用します。
 import os  # osモジュールをインポート。環境変数へのアクセスに使用します。
@@ -18,7 +18,7 @@ bot = commands.Bot(command_prefix='!', intents=intents)
 @bot.event
 async def on_ready():
     # BotがDiscordに接続したときに実行されるイベント。Botのログインが完了したことをログに記録します。
-    logging.info(f'Botが設置されました: {bot.user}')
+    logging.info(f'Botが準備できました: {bot.user}')
 
 @bot.command()
 async def make(ctx, *, text: str):
