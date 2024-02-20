@@ -1,12 +1,12 @@
 # Python 3.9のベースイメージを使用
 FROM python:3.9
 
+# 作業ディレクトリを設定
+WORKDIR /app
+
 # aws cliのインストール
 RUN apt-get update && \
     apt-get install -y awscli
-
-# 作業ディレクトリを設定
-WORKDIR /app
 
 # AWS認証ファイル格納ディレクトリを作成
 RUN mkdir ~/.aws
