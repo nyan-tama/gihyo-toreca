@@ -7,5 +7,3 @@ services:
     environment:
       - DISCORD_BOT_TOKEN
       - TZ=Asia/Tokyo
-
-
