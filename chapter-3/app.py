@@ -5,7 +5,9 @@ import os
 import boto3  # AWS SDK for Python (Boto3) をインポートします。AWSのサービスをPythonから使うために必要です。
 import json  # JSONデータのエンコード（PythonオブジェクトをJSON形式の文字列に変換）およびデコード（JSON形式の文字列をPythonオブジェクトに変換）に使用します。
 from concurrent.futures import ThreadPoolExecutor
-from weasyprint import HTML
+from io import BytesIO
+import base64
+
 
 TOKEN = os.getenv('DISCORD_BOT_TOKEN')
 
@@ -38,8 +40,18 @@ async def make(ctx, *, text: str):
     embed_result.add_field(name="特殊能力", value=monster_info['monster_ability'], inline=False)
     embed_result.add_field(name="伝説", value=monster_info['monster_episode'], inline=False)
 
-    # 結果を送信
+    # テキスト結果を送信
     await ctx.send(embed=embed_result)
+
+    # イメージ結果を送信
+    image_data_base64 = monster_info['monster_image']
+    image_data = base64.b64decode(image_data_base64)
+    # BytesIOオブジェクトを使って、メモリ上に画像を保持します。
+    with BytesIO(image_data) as image_file:
+        # discord.Fileオブジェクトを作成し、画像ファイルとして送信します。
+        discord_file = discord.File(image_file, filename="monster_image.png")
+        await ctx.send(file=discord_file)
+
 
 # Bedrockにリクエストを送信する関数を定義します。
 def request_bedrock(prompt):
@@ -68,6 +80,38 @@ def request_bedrock(prompt):
 
     # デコードした応答ボディを返します。
     return response_body
+
+
+def request_image_bedrock(prompt):
+    client = boto3.client('bedrock-runtime',region_name='us-east-1')
+
+    response = client.invoke_model(
+        modelId='stability.stable-diffusion-xl-v1',
+        body=json.dumps({
+            'text_prompts': [
+                {
+                    "text": prompt
+                }
+            ],
+            "cfg_scale": 5,
+            "seed": 30,
+            "steps": 120
+        }),
+        contentType='application/json'
+    )
+    response_body = json.loads(response['body'].read())
+
+    return response_body
+
+
+def translate_text(text, source_language_code, target_language_code):
+    translate_client = boto3.client('translate')
+    response = translate_client.translate_text(
+        Text=text,
+        SourceLanguageCode=source_language_code,
+        TargetLanguageCode=target_language_code
+    )
+    return response['TranslatedText']
 
 def bedrock(user_request): 
     role_setting = "西洋ファンタジー専門家です"
@@ -108,13 +152,33 @@ def bedrock(user_request):
     response5 = request_bedrock(prompt5)
     monster_episode = response5['completion'].strip(" <answer></answer>")
 
+    # 画像生成
+    prompt6 = "あたなたは{role}。トレーディングカードにふさわしい鮮やかな色彩と、詳細なテクスチャを持つファンタジースタイル。ユーザーがリクエストした{monster}というモンスターはカードの中心に配置され、背景はモンスターの物語である{monster_episode}を象徴する要素で満たされています。モンスターのポーズはモンスターの特殊能力である{monster_ability}を参考に描いて下さい。".format(
+        role=role_setting,
+        monster=user_request,
+        monster_name=monster_name,
+        monster_element=monster_element,
+        monster_ability=monster_ability,
+        monster_episode=monster_episode
+    )
+    # 日本語のプロンプトを英語に翻訳
+    en_prompt6 = translate_text(prompt6, 'ja', 'en')
+    # 英訳したプロンプトでイメージをリクエスト
+    with ThreadPoolExecutor() as executor:
+        generate_image_future = executor.submit(request_image_bedrock, en_prompt6)
+        generate_image = generate_image_future.result()
+
+    # Base64エンコーディングされたイメージデータを取得
+    image_data = generate_image['artifacts'][0]['base64']  # 必要に応じて構造を確認してください
+
     # 生成したモンスター情報を辞書で返す
     return {
         "monster_name": monster_name,
         "monster_level": monster_level,
         "monster_element": monster_element,
         "monster_ability": monster_ability,
-        "monster_episode": monster_episode
+        "monster_episode": monster_episode,
+        "monster_image": image_data,
     }
 
 bot.run(TOKEN)
