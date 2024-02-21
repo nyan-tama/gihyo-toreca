@@ -23,41 +23,23 @@ async def on_ready():
 @bot.command()
 async def make(ctx, *, text: str):
     logging.info(f'受信したメッセージ: {text}')
-    await ctx.send('ただいま作成中...')
+
+    embed_creating = discord.Embed(description="ただいま作成中...", color=discord.Color.gold())
+    await ctx.send(embed=embed_creating)
 
     # ユーザーからのリクエストを基にしてモンスター情報を生成
     monster_info = bedrock(text)
 
-    # HTMLコンテンツを生成
-    html_content = f"""
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <meta charset="UTF-8">
-        <title>Monster Details</title>
-        <!-- 日本語フォントのリンクを追加 -->
-        <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP&display=swap" rel="stylesheet">
-        <style>
-            body {{
-                font-family: 'Noto Sans JP', sans-serif; /* 日本語フォントを適用 */
-            }}
-        </style>
-    </head>
-    <body>
-        <h1>{monster_info['monster_name']}</h1>
-        <p>Level: {monster_info['monster_level']}</p>
-        <p>Element: {monster_info['monster_element']}</p>
-        <p>Ability: {monster_info['monster_ability']}</p>
-        <p>Legend: {monster_info['monster_episode']}</p>
-    </body>
-    </html>
-    """
+    # 生成した文章を Embed で作成
+    embed_result = discord.Embed(title="生成できました！", color=discord.Color.green())
+    embed_result.add_field(name="モンスター名", value=monster_info['monster_name'], inline=False)
+    embed_result.add_field(name="レベル", value=monster_info['monster_level'], inline=False)
+    embed_result.add_field(name="属性", value=monster_info['monster_element'], inline=False)
+    embed_result.add_field(name="特殊能力", value=monster_info['monster_ability'], inline=False)
+    embed_result.add_field(name="伝説", value=monster_info['monster_episode'], inline=False)
 
-    # HTMLからPDFを生成
-    HTML(string=html_content).write_pdf('monster_details.pdf')
-    
-    # 完成したPDFをDiscordチャットに送信
-    await ctx.send(file=discord.File('monster_details.pdf'))
+    # 結果を送信
+    await ctx.send(embed=embed_result)
 
 # Bedrockにリクエストを送信する関数を定義します。
 def request_bedrock(prompt):
