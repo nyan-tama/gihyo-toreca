@@ -1,0 +1,9 @@
+services:
+  web:
+    build: .
+    volumes:
+      - .:/app
+      - $HOME/.aws:/root/.aws
+    environment:
+      - DISCORD_BOT_TOKEN
+      - TZ=Asia/Tokyo
