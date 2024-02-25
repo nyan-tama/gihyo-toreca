@@ -1,41 +1,47 @@
 import boto3
 import json
-from concurrent.futures import ThreadPoolExecutor
+import logging
 
-def request_bedrock(prompt):
-    bedrock_runtime = boto3.client(service_name='bedrock-runtime', region_name='us-east-1')
+
+# boto3クライアントを初期化
+bedrock_runtime = boto3.client(service_name='bedrock-runtime', region_name='us-east-1')
+translate_client = boto3.client('translate')
+
+def invoke_text_model(prompt):
+    body = json.dumps({
+        'prompt': prompt,
+        'max_tokens_to_sample': 200,
+        'temperature': 0.9,
+        'top_k': 150,
+        'top_p': 0.7
+    })
     response = bedrock_runtime.invoke_model(
         modelId='anthropic.claude-v2',
-        body=json.dumps({
-            'prompt': prompt,
-            'max_tokens_to_sample': 200,
-            'temperature': 0.9,
-            'top_k': 150,
-            'top_p': 0.7
-        }),
+        body=body,
         accept='application/json',
         contentType='application/json'
     )
     response_body = json.loads(response['body'].read())
-    return response_body
+    return response_body['completion'].strip(" <answer></answer>")
 
-def request_image_bedrock(prompt):
-    client = boto3.client('bedrock-runtime', region_name='us-east-1')
-    response = client.invoke_model(
+def invoke_image_model(prompt):
+    body = json.dumps({
+        'text_prompts': [{'text': prompt}],
+        'cfg_scale': 5,
+        'seed': 30,
+        'steps': 120
+    })
+
+    response = bedrock_runtime.invoke_model(
         modelId='stability.stable-diffusion-xl-v1',
-        body=json.dumps({
-            'text_prompts': [{'text': prompt}],
-            'cfg_scale': 5,
-            'seed': 30,
-            'steps': 120
-        }),
+        body=body,
+        accept='application/json',
         contentType='application/json'
     )
     response_body = json.loads(response['body'].read())
-    return response_body
+    return response_body['artifacts'][0]['base64']
 
 def translate_text(text, source_language_code, target_language_code):
-    translate_client = boto3.client('translate')
     response = translate_client.translate_text(
         Text=text,
         SourceLanguageCode=source_language_code,
@@ -43,82 +49,81 @@ def translate_text(text, source_language_code, target_language_code):
     )
     return response['TranslatedText']
 
-def bedrock(user_request): 
-    role_setting = "西洋ファンタジーのクリエイターです"
-
-    # モンスター名生成プロンプト
-    prompt1 = (
-        "Human: あなたは{role}。ユーザーは{monster}というモンスターをリクエストしています。"
-        "ファーストネーム・ミドルネームを持つ人間のようなモンスターの名前を生成し、"
-        "<answer></answer>タグに出力してください。\n"
+def generate_prompt_for_name(role_setting, user_request):
+    return (
+        f"Human: {role_setting}として、{user_request}に名前を付けてください。"
+        "人間らしいファーストネームとミドルネームを持つ、このモンスターの名前を考えて、<answer></answer>タグ内に記入してください。\n"
         "Assistant: "
-    ).format(role=role_setting, monster=user_request)
-    # request_bedrock関数から結果を取得します
-    response1 = request_bedrock(prompt1)
-    # AIモデルからのレスポンスのうち、'completion'フィールドに含まれるテキストから、生成されたモンスターの名前だけを取得できます。
-    monster_name = response1['completion'].strip(" <answer></answer>")
+    )
 
-    # モンスターレベル生成プロンプト
-    prompt2 = (
-        "Human: あたなたは{role}。ユーザーは{monster}というモンスターをリクエストしています。"
-        "レベルを10段階で数値にして生成してくれます。『1,2,3,4,5,6,7,8,9,10』の中からリクエストに合った強さを選んでください。"
-        "レベルは小さいほど弱く、大きほど強いです。モンスターのレベルを<answer></answer>タグに数値で出力してください。</answer>以降の解説は入りません\n"
+def generate_prompt_for_level(role_setting, user_request):
+    return (
+        f"Human: {role_setting}として、{user_request}の強さのレベルを設定してください。"
+        "1から10までのスケールで、適切なレベルを選び、その数値を<answer></answer>タグ内に記入してください。レベルが高いほど、モンスターは強力です。\n"
         "Assistant: "
-    ).format(role=role_setting, monster=user_request)
-    response2 = request_bedrock(prompt2)
-    monster_level = response2['completion'].strip(" <answer></answer>")
+    )
 
-    # モンスター属性生成プロンプト
-    prompt3 = (
-        "Human: あたなたは{role}。ユーザーは{monster}というモンスターをリクエストしています。"
-        "属性を『火、水、風、土、光、闇』の中からリクエストに合った属性を選んでください。選んだ属性を<answer></answer>タグに出力してください。</answer>以降の解説は入りません\n"
+def generate_prompt_for_element(role_setting, user_request):
+    return (
+        f"Human: {role_setting}として、{user_request}にどの属性を与えるか決定してください。"
+        "火、水、風、土、光、闇の中から、最も適した属性を選び、その属性を<answer></answer>タグ内に記入してください。\n"
         "Assistant: "
-    ).format(role=role_setting, monster=user_request)
-    response3 = request_bedrock(prompt3)
-    monster_element = response3['completion'].strip(" <answer></answer>")
+    )
+
+def generate_prompt_for_ability(role_setting, user_request):
+    return (
+        f"Human: {role_setting}として、{user_request}に基づく特殊能力を100文字以内で考えてください。"
+        f"モンスターの特殊能力とその説明を<answer>【特殊能力】：説明</answer>タグ内に簡潔に記述してください。\n"
+        "Assistant: "
+    )
+
+def generate_prompt_for_episode(role_setting, user_request, prompt_level, monster_element, prompt_ability):
+    return (
+        f"Human: {role_setting}として、{user_request}のバックグラウンドがわかる悲しく恐ろしい言い伝えを100文字以内で考えてください。"
+        f"モンスターの属性である{monster_element}、数値が大きいほど強い1~10段階ある強さの中でレベル{prompt_level}、特殊能力が{prompt_ability}であることを考慮してください。"
+        f"作成したエピソードを<answer></answer>タグ内に記入してください。\n"
+        f"Assistant: "
+    )
+
+def generate_prompt_for_image(role_setting, user_request, monster_ability, monster_episode):
+    return (
+        f"{role_setting}として、{user_request}の画像を生成してください。"
+        f"トレーディングカードにふさわしい鮮やかな色彩と、詳細なテクスチャを持つファンタジースタイルを希望します。"
+        f"モンスターはカードの中心に配置され、背景はモンスターの物語である{monster_episode}を象徴する要素で満たされています。"
+        f"モンスターのポーズは特殊能力である{monster_ability}を参考に描いてください。"
+    )
+
+def bedrock(user_request):
+    role_setting = "あなたはファンタジーに詳しい知識人で画家"
+
+    # 各特性のプロンプト生成
+    prompt_name = generate_prompt_for_name(role_setting, user_request)
+    monster_name = invoke_text_model(prompt_name)
     
-    # モンスター能力生成プロンプト
-    prompt4 = (
-        "Human: あたなたは{role}。ユーザーは{monster}というモンスターをリクエストしています。"
-        "{monster_name}というモンスターの名前、モンスターの属性である{monster_element}を資料にし、"
-        "モンスターの特殊能力と特殊能力の説明を<answer>【特殊能力】：特殊能力の説明</answer>タグに100文字以内で出力してください。\n"
-        "Assistant: "
-    ).format(role=role_setting, monster=user_request, monster_name=monster_name, monster_element=monster_element)
-    response4 = request_bedrock(prompt4)
-    monster_ability = response4['completion'].strip(" <answer></answer>")
+    prompt_level = generate_prompt_for_level(role_setting, user_request)
+    monster_level = invoke_text_model(prompt_level)
     
-    # モンスターエピソード生成プロンプト
-    prompt5 = (
-        "Human: あたなたは{role}。ユーザーは{monster}というモンスターをリクエストしています。"
-        "{monster_name}というモンスターの名前、モンスターの属性である{monster_element}、モンスターの特殊能力である{monster_ability}を資料にし、"
-        "モンスターのバックグラウンドがわかる悲しく恐ろしい伝説の言い伝えを<answer></answer>タグに100文字以内でお願いします。\n"
-        "Assistant: "
-    ).format(role=role_setting, monster=user_request, monster_name=monster_name, monster_element=monster_element, monster_ability=monster_ability)
-    response5 = request_bedrock(prompt5)
-    monster_episode = response5['completion'].strip(" <answer></answer>")
+    prompt_element = generate_prompt_for_element(role_setting, user_request)
+    monster_element = invoke_text_model(prompt_element)
+    
+    prompt_ability = generate_prompt_for_ability(role_setting, user_request)
+    monster_ability = invoke_text_model(prompt_ability)
+    
+    prompt_episode = generate_prompt_for_episode(role_setting, user_request, monster_level, monster_element, monster_ability)
+    monster_episode = invoke_text_model(prompt_episode)
 
-    # モンスター画像生成プロンプト
-    prompt6 = (
-        "あたなたは{role}。トレーディングカードにふさわしい鮮やかな色彩と、詳細なテクスチャを持つファンタジースタイルを希望します。"
-        "ユーザーがリクエストした{monster}というモンスターはカードの中心に配置され、背景はモンスターの物語である{monster_episode}を象徴する要素で満たされています。"
-        "モンスターのポーズはモンスターの特殊能力である{monster_ability}を参考に描いて下さい。\n"
-    ).format(role=role_setting, monster=user_request, monster_ability=monster_ability, monster_episode=monster_episode)
-    # 日本語のプロンプトを英語に翻訳
-    en_prompt6 = translate_text(prompt6, 'ja', 'en')
-    # 英訳したプロンプトでイメージをリクエスト
-    with ThreadPoolExecutor() as executor:
-        generate_image_future = executor.submit(request_image_bedrock, en_prompt6)
-        generate_image = generate_image_future.result()
+    # モンスター画像生成
+    image_prompt = generate_prompt_for_image(role_setting, user_request, monster_ability, monster_episode)
+    translated_prompt = translate_text(image_prompt, 'ja', 'en')
+    monster_image = invoke_image_model(translated_prompt)
 
-    # Base64エンコーディングされたイメージデータを取得
-    image_data = generate_image['artifacts'][0]['base64']  # 必要に応じて構造を確認してください
+    logging.info('素材の生成が完了')
 
-    # 生成したモンスター情報を返す
     return {
         "monster_name": monster_name,
         "monster_level": monster_level,
         "monster_element": monster_element,
         "monster_ability": monster_ability,
         "monster_episode": monster_episode,
-        "monster_image": image_data,
+        "monster_image": monster_image
     }

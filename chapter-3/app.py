@@ -2,7 +2,6 @@ import discord
 from discord.ext import commands
 import logging
 import os
-from concurrent.futures import ThreadPoolExecutor ## 非同期実行に必要なThreadPoolExecutorをインポートします。
 from io import BytesIO # メモリ上で画像のバイナリデータを扱うためのBytesIOをインポートします。
 import base64 # Base64エンコーディング・デコーディングに使用するライブラリをインポートします。同じくイメージ描画の際に使用。
 from generate_ai import bedrock
