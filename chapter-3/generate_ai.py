@@ -117,8 +117,6 @@ def bedrock(user_request):
     translated_prompt = translate_text(image_prompt, 'ja', 'en')
     monster_image = invoke_image_model(translated_prompt)
 
-    logging.info('素材の生成が完了')
-
     return {
         "monster_name": monster_name,
         "monster_level": monster_level,
