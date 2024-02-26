@@ -108,20 +108,22 @@ def generate_monster_bedrock(user_request):
 
     # 各特性のプロンプト成形
     prompt_name = generate_prompt_for_name(role_setting, user_request)
+    monster_name = invoke_text_model(prompt_name)
+
     prompt_level = generate_prompt_for_level(role_setting, user_request)
+    monster_level = invoke_text_model(prompt_level)
+
     prompt_element = generate_prompt_for_element(role_setting, user_request)
+    monster_element = invoke_text_model(prompt_element)
+
     prompt_ability = generate_prompt_for_ability(role_setting, user_request)
+    monster_ability = invoke_text_model(prompt_ability)
+
     prompt_episode = generate_prompt_for_episode(role_setting, user_request, monster_level, monster_element, monster_ability)
+    monster_episode = invoke_text_model(prompt_episode)
 
     prompt_image = generate_prompt_for_image(role_setting, user_request, monster_episode)
     translated_prompt = translate_text(prompt_image, 'ja', 'en')
-
-    # 成形したプロンプトでbedrockから文章と画像の生成
-    monster_name = invoke_text_model(prompt_name)
-    monster_level = invoke_text_model(prompt_level)
-    monster_element = invoke_text_model(prompt_element)
-    monster_ability = invoke_text_model(prompt_ability)
-    monster_episode = invoke_text_model(prompt_episode)
 
     monster_image = invoke_image_model(translated_prompt)
 
