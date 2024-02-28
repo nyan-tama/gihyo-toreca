@@ -2,7 +2,8 @@ import discord
 from discord.ext import commands
 import logging
 import os
-from generate_ai import generate_monster_bedrock # generate_ai.pyに作った『generate_monster_bedrock』を呼び出す
+from generate_ai import generate_monster_bedrock
+from image_processing import generate_card_and_upload_image
 
 
 TOKEN = os.getenv('DISCORD_BOT_TOKEN')
@@ -27,16 +28,9 @@ async def make(ctx, *, text: str):
     # Discordから受け取った『text』のメッセージを『generate_monster_bedrock』関数に渡して、生成開始
     monster_info = generate_monster_bedrock(text)
 
-    # 第3回では動作確認のため、生成したモンスターの情報をそのままDiscord上で表示してみます
-    # 以降のプログラムは第3回の動作確認用のプログラムなので、第4回以降は削除されます。
-    monster_details = (
-        f"**モンスター名**: {monster_info['monster_name']}\n"
-        f"**強さ**: {monster_info['monster_level']}\n"
-        f"**属性**: {monster_info['monster_element']}\n"
-        f"**特殊能力**: {monster_info['monster_ability']}\n"
-        f"**伝説**: {monster_info['monster_episode']}"
-    )
+    # 生成したモンスター情報を使用してPDFを生成し、画像に変換してS3にアップロード
+    generate_pdf_and_upload_image(monster_info)
 
-    # テキスト結果をDiscordに送信
-    await ctx.send(monster_details)
+    # 処理が完了したことをユーザーに通知
+    await ctx.send("モンスターの作成が完了しました！")
 bot.run(TOKEN)
