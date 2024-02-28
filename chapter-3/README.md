@@ -11,7 +11,7 @@ docker-compose up
 ```
 
 ```
-※もしDockerfileを修正した場合はbuildし直し、起動し直す
+※もしDockerfileおよびrequirements.txtを修正した場合はbuildし直し、起動し直す
 docker-compose build --no-cache
 docker-compose up
 ```
@@ -24,7 +24,6 @@ docker-compose up
 Ctrl + C
 ```
 
-
 ---
 
 ## 本番環境での起動
@@ -32,6 +31,7 @@ Ctrl + C
 ```
 docker build -t gihyo-toreca .
 ```
+
 ### Dockerの起動
 ```
 # Dockerイメージを起動 
