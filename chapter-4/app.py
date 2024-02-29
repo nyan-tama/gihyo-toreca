@@ -28,9 +28,7 @@ async def make(ctx, *, text: str):
     # Discordから受け取った『text』のメッセージを『generate_monster_bedrock』関数に渡して、生成開始
     monster_info = generate_monster_bedrock(text)
 
-    # 生成したモンスター情報を使用してPDFを生成し、画像に変換してS3にアップロード
-    generate_pdf_and_upload_image(monster_info)
-
-    # 処理が完了したことをユーザーに通知
-    await ctx.send("モンスターの作成が完了しました！")
+    # 生成したモンスター情報を使用してカードをレイアウトし、画像に変換してS3にアップロード
+    generate_card_and_upload_image(monster_info)
+    
 bot.run(TOKEN)

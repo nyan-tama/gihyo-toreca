@@ -46,8 +46,9 @@ def invoke_image_model(prompt):
         accept='application/json',
         contentType='application/json'
     )
-    # レスポンスボディをJSONオブジェクトとして読み込み、画像データ（Base64エンコード）を返します。
+    # レスポンスボディをJSONオブジェクトとして読み込み、画像データ（Base64化されている）を返します。
     response_body = json.loads(response['body'].read())
+    
     return response_body['artifacts'][0]['base64']
 
 # AWS Translateを利用してテキストを翻訳する関数です。
@@ -107,7 +108,7 @@ def generate_prompt_for_image(role_setting, user_request, monster_episode):
     return (
         f"{role_setting}として、{user_request}の画像を生成してください。"
         "彩度が強く鮮やかな色彩と、緻密で詳細なテクスチャを持つファンタジースタイルを希望します。"
-        f"モンスターはカードの中心に配置され、背景はモンスターの物語である{monster_episode}の物語を表現する要素で満たされています。"
+        f"モンスターは絵の中心に配置され、背景はモンスターの物語である{monster_episode}の物語を表現する要素で満たされています。"
     )
 
 def generate_monster_bedrock(user_request):

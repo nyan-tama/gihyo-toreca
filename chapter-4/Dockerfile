@@ -4,9 +4,9 @@ FROM python:3.9
 # 作業ディレクトリを設定
 WORKDIR /app
 
-# aws cliのインストール
+# 第四回用のpoppler-utilsのインストール
 RUN apt-get update && \
-    apt-get install -y awscli
+    apt-get install -y poppler-utils
 
 # AWS認証ファイル格納ディレクトリを作成
 RUN mkdir ~/.aws
