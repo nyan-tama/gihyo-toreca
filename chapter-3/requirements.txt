@@ -1,2 +1,2 @@
-discord.py
+discord.py # 第二回に追加
 boto3 # 第三回に追加
