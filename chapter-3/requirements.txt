@@ -1,2 +1,2 @@
 discord.py
-boto3
+boto3 # 第三回に追加
