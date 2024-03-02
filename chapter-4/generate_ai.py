@@ -7,7 +7,6 @@ bedrock_runtime = boto3.client(service_name='bedrock-runtime', region_name='us-e
 translate_client = boto3.client('translate')
 
 def invoke_text_model(prompt):
-
     body = json.dumps({
         'prompt': prompt,
         'temperature': 0.9,
@@ -34,11 +33,18 @@ def invoke_text_model(prompt):
 def invoke_image_model(prompt):
     # 画像生成に必要なパラメータを指定します。
     body = json.dumps({
-        'text_prompts': [{'text': prompt}],
-        'cfg_scale': 9,
-        'steps': 150,
-        'seed': 40,
+        'text_prompts': [
+            {'text': prompt, 'weight': 1.0},  # 生成したいものを指定します。
+            {'text': 'setting material, multiple images', 'weight': -1.0}, # 生成したくないものを指定します。
+        ],
+        'width': 1024,
+        'height': 1024,
+        'cfg_scale': 10,
+        'steps': 130,
+        'seed': 5,
+        'style_preset': 'fantasy-art',
     })
+
     # Bedrock Runtimeのinvoke_modelメソッドを使用して、画像生成モデルにリクエストを送信します。
     response = bedrock_runtime.invoke_model(
         modelId='stability.stable-diffusion-xl-v1',
@@ -64,51 +70,51 @@ def translate_text(text, source_language_code, target_language_code):
 
 def generate_prompt_for_name(role_setting, user_request):
     return (
-        f"\n\nHuman: {role_setting}、ユーザーが{user_request}をリクエストしています。"
-        "人間らしいファーストネームとミドルネームを持つ、このモンスターの名前を考えて、<answer></answer>タグ内に記入してください。"
+        f"\n\nHuman: {role_setting}。ユーザーが{user_request}の名前をリクエストしています。"
         "ユーザーが指定した名前があるならばそれを最優先で反映してください。"
+        "このモンスターのユニークな名前を考えて、<answer></answer>タグ内に記入してください。"
         "\n\nAssistant: "
     )
 
 def generate_prompt_for_level(role_setting, user_request):
     return (
-        f"\n\nHuman: {role_setting}、ユーザーが{user_request}をリクエストしています。"
-        "1から10までの強さがあり、その数値を<answer></answer>タグ内に記入してください。強さが大きいほど、モンスターは強力です。"
+        f"\n\nHuman: {role_setting}。ユーザーが{user_request}の強さをリクエストしています。"
         "ユーザーが指定した強さがあるならばそれを最優先で反映してください。"
+        "1から10までの強さがあり、その数値を<answer></answer>タグ内に記入してください。強さが大きいほど、モンスターは強力です。"
         "\n\nAssistant: "
     )
 
 def generate_prompt_for_element(role_setting, user_request):
     return (
-        f"\n\nHuman: {role_setting}、ユーザーが{user_request}をリクエストしています。"
-        "火、水、風、土、光、闇の中から、最も適した属性を選び、その属性を<answer></answer>タグ内に記入してください。"
+        f"\n\nHuman: {role_setting}。ユーザーが{user_request}の属性をリクエストしています。"
         "ユーザーが指定した属性があるならばそれを最優先で反映してください。"
+        "火、水、風、土、光、闇の中から、最も適した属性を選び、その属性を<answer></answer>タグ内に記入してください。"
         "\n\nAssistant: "
     )
 
 def generate_prompt_for_ability(role_setting, user_request):
     return (
-        f"\n\nHuman: {role_setting}、ユーザーが{user_request}をリクエストしています。"
-        "モンスターの特殊能力とその説明を<answer>【特殊能力】：説明</answer>タグ内に100文字程度で記述してください。"
+        f"\n\nHuman: {role_setting}。ユーザーが{user_request}の特殊能力をリクエストしています。"
         "ユーザーが指定した特殊能力があるならばそれを最優先で反映してください。"
+        "このモンスターのユニークな特殊能力とその説明を<answer>【特殊能力】：説明</answer>タグ内に100文字程度で記述してください。"
         "\n\nAssistant: "
     )
 
 def generate_prompt_for_episode(role_setting, user_request, prompt_level, monster_element, prompt_ability):
     return (
-        f"\n\nHuman: {role_setting}、ユーザーが{user_request}をリクエストしています。"
+        f"\n\nHuman: {role_setting}。ユーザーが{user_request}の物語をリクエストしています。"
+        "ユーザーが指定した物語があるならばそれを最優先で反映してください。"
         f"モンスターの属性である{monster_element}、数値が大きいほど強い1~10段階ある強さの中でレベル{prompt_level}、特殊能力が{prompt_ability}であることを考慮してください。"
-        "このモンスターの不気味で悲しく謎に満ちた伝説を<answer></answer>タグ内に100文字程度で記述してください。"
-        "ユーザーが指定した伝説があるならばそれを最優先で反映してください。"
+        "このモンスターの不気味で悲しく謎に満ちた物語を<answer></answer>タグ内に100文字程度で記述してください。"
         "\n\nAssistant: "
     )
 
 # モンスターの画像を生成するためのプロンプトを成形する関数
-def generate_prompt_for_image(role_setting, user_request, monster_episode):
+def generate_prompt_for_image(user_request, monster_episode):
     return (
-        f"{role_setting}として、{user_request}の画像を生成してください。"
-        "彩度が強く鮮やかな色彩と、緻密で詳細なテクスチャを持つファンタジースタイルを希望します。"
-        f"モンスターは絵の中心に配置され、背景はモンスターの物語である{monster_episode}の物語を表現する要素で満たされています。"
+        f"{user_request}"
+        f"『{monster_episode}』を象徴した色鮮やかで緻密な背景"
+        "master pease, best quality"
     )
 
 def generate_monster_bedrock(user_request):
@@ -130,13 +136,12 @@ def generate_monster_bedrock(user_request):
     monster_episode = invoke_text_model(prompt_episode)
 
     # モンスターの画像を生成するためのプロンプトを作成  
-    prompt_image = generate_prompt_for_image(role_setting, user_request, monster_episode)
+    prompt_image = generate_prompt_for_image(user_request, monster_episode)
     # AWS Translateを利用して英訳する
     translated_prompt = translate_text(prompt_image, 'ja', 'en')
 
     # イメージを生成
     monster_image = invoke_image_model(translated_prompt)
-
 
     return {
         "monster_name": monster_name,
@@ -145,5 +150,4 @@ def generate_monster_bedrock(user_request):
         "monster_ability": monster_ability,
         "monster_episode": monster_episode,
         "monster_image": monster_image # 生成イメージの返却を追加
-
     }

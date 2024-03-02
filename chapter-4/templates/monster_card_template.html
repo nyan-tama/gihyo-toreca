@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Trading Card</title>
+    
+    <!-- 日本語を利用するために必要 -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP" rel="stylesheet">
+    
+    <link rel="stylesheet" href="./static/style.css"> 
+<body>
+    <div class="image-container">
+        <div class="text-overlay">
+            <!-- 生成した名前の配置 -->
+            <p class="monster-name">{{ monster_info.monster_name }}</p>
+
+            <!-- 生成した属性の配置 -->
+            <p class="monster-element">{{ monster_info.monster_element }}</p>
+
+            <!-- 生成した強さの配置 強さを星で置き換え-->
+            <p class="monster-strength">
+                {% for _ in range(monster_info.monster_level | int) %}
+                    ★
+                {% endfor %}
+
+            <!-- 生成した能力の配置 -->
+            <p class="monster-ability">{{ monster_info.monster_ability }}</p>
+
+            <!-- 生成した物語の配置 -->
+            <p class="monster-episode">{{ monster_info.monster_episode }}</p>
+        </div>
+
+        <!-- カードのフレームを配置 -->
+        <img src="./static/card-frame.png" alt="Card Frame" class="card-frame">
+        
+        <!-- 生成したモンスター画像を配置 -->
+        <img src="data:image/png;base64,{{ monster_info.monster_image }}" alt="Monster Image" class="monster-image">
+    </div>
+</body>
+</html>

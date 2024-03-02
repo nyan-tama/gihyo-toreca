@@ -1,0 +1,102 @@
+/* ページ全体の設定を定義、印刷やPDF出力時に適用されます */
+@page {
+    margin: 0; /* 余白をなくす */
+    width: 1240px; /* ページの幅 */
+    height: 1760px; /* ページの高さ */
+}
+
+/* ドキュメントの本体に関するスタイル */
+body {
+    margin: 0 auto; /* 上下の余白を0にし、左右で中央揃え */
+    width: 1240px; /* 本体の幅 */
+    height: 1760px; /* 本体の高さ */
+    font-family: 'Noto Sans JP', sans-serif; /* 使用するフォント */
+}
+
+/* カードフレームの背景と位置を設定 */
+.card-frame {
+    position: absolute; /* 絶対位置指定 */
+    z-index: 1; /* 重なり順序 */
+    top: 0; /* 上端の位置 */
+    left: 0; /* 左端の位置 */
+    width: 1240px; /* 幅 */
+    height: 1760px; /* 高さ */
+    background-size: cover; /* 背景画像を要素の全体に合わせて拡大/縮小 */
+    background-position: center; /* 背景画像を中央に配置 */
+}
+
+/* モンスター画像の配置とサイズ調整 */
+.monster-image {
+    position: absolute; /* 絶対位置指定 */
+    z-index: -1; /* カードフレームより背面に配置 */
+    top: 100px; /* 上端からの位置 */
+    left: 50%; /* 左端から50%の位置に配置（中央揃えのため） */
+    width: 85%; /* 親要素に対する幅の85% */
+    height: auto; /* 高さは自動調整（アスペクト比維持） */
+    transform: translate(-50%, 0); /* 中央揃えの微調整 */
+}
+
+/* モンスター名のスタイル設定 */
+.monster-name {
+    position: absolute; /* 絶対位置指定 */
+    z-index: 2; /* 重なり順序 */
+    top: 1075px; /* 上端からの位置 */
+    left: 50%; /* 左端から50%の位置 */
+    font-size: 3em; /* フォントサイズ */
+    color: #fff; /* フォントカラー */
+    font-weight: 800; /* フォントの太さ */
+    white-space: nowrap; /* テキストの折り返しを無効化 */
+    transform: translate(-50%, 0); /* X軸方向に50%移動して中央揃え */
+    display: inline-block; /* インラインブロック要素として表示 */
+}
+
+/* モンスター属性のスタイル設定 */
+.monster-element {
+    position: absolute; /* 絶対位置指定 */
+    z-index: 3; /* 重なり順序 */
+    top: 45px; /* 上端からの位置 */
+    right: 125px; /* 右端からの位置 */
+    font-size: 3.8em; /* フォントサイズ */
+    color: #fff; /* フォントカラー */
+    font-weight: 800; /* フォントの太さ */
+    display: inline-block; /* インラインブロック要素として表示 */
+}
+
+/* モンスターの強さ（レベル）を表す星のスタイル設定 */
+.monster-strength {
+    position: absolute; /* 絶対位置指定 */
+    z-index: 4; /* 重なり順序 */
+    top: 1592px; /* 上端からの位置 */
+    right: 50px; /* 右端からの位置 */
+    font-size: 3em; /* フォントサイズ */
+    color: #FFD700; /* ゴールド色 */
+    text-shadow: 6px 6px 20px rgb(0, 0, 0); /* テキストの影を追加 */
+    letter-spacing: 0.15em; /* 文字間隔 */
+}
+
+/* モンスター能力のテキストスタイル */
+.monster-ability {
+    position: absolute; /* 絶対位置指定 */
+    z-index: 5; /* 重なり順序 */
+    top: 1220px; /* 上端からの位置 */
+    font-size: 1.7em; /* フォントサイズ */
+    color: #fff; /* フォントカラー */
+    text-align: left; /* テキストを左揃え */
+    margin-left: 12%; /* 左のマージン */
+    margin-right: 12%; /* 右のマージン */
+    text-shadow: 4px 4px 10px rgb(16, 153, 222); /* テキストの影を追加 */
+    display: inline-block; /* インラインブロック要素として表示 */
+}
+
+/* モンスターに関連するエピソードやストーリーのテキストスタイル */
+.monster-episode {
+    position: absolute; /* 絶対位置指定 */
+    z-index: 6; /* 重なり順序 */
+    top: 1380px; /* 上端からの位置 */
+    font-size: 1.7em; /* フォントサイズ */
+    color: #fff; /* フォントカラー */
+    text-align: left; /* テキストを左揃え */
+    margin-left: 12%; /* 左のマージン */
+    margin-right: 12%; /* 右のマージン */
+    display: inline-block; /* インラインブロック要素として表示 */
+}
