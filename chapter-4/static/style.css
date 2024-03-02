@@ -82,8 +82,8 @@ body {
     font-size: 1.7em; /* フォントサイズ */
     color: #fff; /* フォントカラー */
     text-align: left; /* テキストを左揃え */
-    margin-left: 12%; /* 左のマージン */
-    margin-right: 12%; /* 右のマージン */
+    margin-left: 11%; /* 左のマージン */
+    margin-right: 11%; /* 右のマージン */
     text-shadow: 4px 4px 10px rgb(16, 153, 222); /* テキストの影を追加 */
     display: inline-block; /* インラインブロック要素として表示 */
 }
@@ -96,7 +96,7 @@ body {
     font-size: 1.7em; /* フォントサイズ */
     color: #fff; /* フォントカラー */
     text-align: left; /* テキストを左揃え */
-    margin-left: 12%; /* 左のマージン */
-    margin-right: 12%; /* 右のマージン */
+    margin-left: 11%; /* 左のマージン */
+    margin-right: 11%; /* 右のマージン */
     display: inline-block; /* インラインブロック要素として表示 */
 }
