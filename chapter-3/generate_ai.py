@@ -37,46 +37,46 @@ def invoke_text_model(prompt):
 # モンスターの名前を生成するためのプロンプトを作成
 def generate_prompt_for_name(role_setting, user_request):
     return (
-        f"\n\nHuman: {role_setting}、ユーザーが{user_request}をリクエストしています。"
-        "人間らしいファーストネームとミドルネームを持つ、このモンスターの名前を考えて、<answer></answer>タグ内に記入してください。"
+        f"\n\nHuman: {role_setting}。ユーザーが{user_request}の名前をリクエストしています。"
         "ユーザーが指定した名前があるならばそれを最優先で反映してください。"
+        "このモンスターのユニークな名前を考えて、<answer></answer>タグ内に記入してください。"
         "\n\nAssistant: "
     )
 
 # モンスターの強さのレベル（1から10まで）を決定するためのプロンプトを作成
 def generate_prompt_for_level(role_setting, user_request):
     return (
-        f"\n\nHuman: {role_setting}、ユーザーが{user_request}をリクエストしています。"
-        "1から10までの強さがあり、その数値を<answer></answer>タグ内に記入してください。強さが大きいほど、モンスターは強力です。"
+        f"\n\nHuman: {role_setting}。ユーザーが{user_request}の強さをリクエストしています。"
         "ユーザーが指定した強さがあるならばそれを最優先で反映してください。"
+        "1から10までの強さがあり、その数値を<answer></answer>タグ内に記入してください。強さが大きいほど、モンスターは強力です。"
         "\n\nAssistant: "
     )
 
 # モンスターの属性（火、水、風、土、光、闇）を決定するためのプロンプトを作成
 def generate_prompt_for_element(role_setting, user_request):
     return (
-        f"\n\nHuman: {role_setting}、ユーザーが{user_request}をリクエストしています。"
-        "火、水、風、土、光、闇の中から、最も適した属性を選び、その属性を<answer></answer>タグ内に記入してください。"
+        f"\n\nHuman: {role_setting}。ユーザーが{user_request}の属性をリクエストしています。"
         "ユーザーが指定した属性があるならばそれを最優先で反映してください。"
+        "火、水、風、土、光、闇の中から、最も適した属性を選び、その属性を<answer></answer>タグ内に記入してください。"
         "\n\nAssistant: "
     )
 
 # モンスターの特殊能力とその説明を生成するためのプロンプトを作成
 def generate_prompt_for_ability(role_setting, user_request):
     return (
-        f"\n\nHuman: {role_setting}、ユーザーが{user_request}をリクエストしています。"
-        "モンスターの特殊能力とその説明を<answer>【特殊能力】：説明</answer>タグ内に100文字程度で記述してください。"
+        f"\n\nHuman: {role_setting}。ユーザーが{user_request}の特殊能力をリクエストしています。"
         "ユーザーが指定した特殊能力があるならばそれを最優先で反映してください。"
+        "このモンスターのユニークな特殊能力とその説明を<answer>【特殊能力】：説明</answer>タグ内に100文字程度で記述してください。"
         "\n\nAssistant: "
     )
 
-# モンスターの伝説や背景ストーリーを生成するためのプロンプトを作成
+# モンスターの物語や背景ストーリーを生成するためのプロンプトを作成
 def generate_prompt_for_episode(role_setting, user_request, prompt_level, monster_element, prompt_ability):
     return (
-        f"\n\nHuman: {role_setting}、ユーザーが{user_request}をリクエストしています。"
+        f"\n\nHuman: {role_setting}。ユーザーが{user_request}の物語をリクエストしています。"
+        "ユーザーが指定した物語があるならばそれを最優先で反映してください。"
         f"モンスターの属性である{monster_element}、数値が大きいほど強い1~10段階ある強さの中でレベル{prompt_level}、特殊能力が{prompt_ability}であることを考慮してください。"
-        "このモンスターの不気味で悲しく謎に満ちた伝説を<answer></answer>タグ内に100文字程度で記述してください。"
-        "ユーザーが指定した伝説があるならばそれを最優先で反映してください。"
+        "このモンスターの不気味で悲しく謎に満ちた物語を<answer></answer>タグ内に100文字程度で記述してください。"
         "\n\nAssistant: "
     )
 
