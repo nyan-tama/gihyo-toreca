@@ -2,7 +2,8 @@ import discord
 from discord.ext import commands
 import logging
 import os
-from generate_ai import generate_monster_bedrock # generate_ai.pyに作った『generate_monster_bedrock』を呼び出す
+# generate_ai.pyに作った『generate_monster_bedrock』を呼び出す
+from generate_ai import generate_monster_bedrock 
 
 
 TOKEN = os.getenv('DISCORD_BOT_TOKEN')
