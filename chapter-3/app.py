@@ -35,7 +35,7 @@ async def make(ctx, *, text: str):
         f"**強さ**: {monster_info['monster_level']}\n"
         f"**属性**: {monster_info['monster_element']}\n"
         f"**特殊能力**: {monster_info['monster_ability']}\n"
-        f"**伝説**: {monster_info['monster_episode']}"
+        f"**物語**: {monster_info['monster_episode']}"
     )
 
     # テキスト結果をDiscordに送信

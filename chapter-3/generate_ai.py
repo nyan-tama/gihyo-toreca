@@ -106,9 +106,9 @@ def generate_monster_bedrock(user_request):
     # モンスターの能力を生成
     monster_ability = invoke_text_model(prompt_ability)
 
-    # モンスターの伝説を生成するためのプロンプトを作成  
+    # モンスターの物語を生成するためのプロンプトを作成  
     prompt_episode = generate_prompt_for_episode(role_setting, user_request, monster_level, monster_element, monster_ability)
-    # モンスターの伝説を生成
+    # モンスターの物語を生成
     monster_episode = invoke_text_model(prompt_episode)
 
     # 呼び出し元(app.py）へ生成結果のレスポンス
