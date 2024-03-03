@@ -6,5 +6,4 @@ services:
       - $HOME/.aws:/root/.aws
     environment:
       - DISCORD_BOT_TOKEN
-      - S3_BUCKET_NAME
       - TZ=Asia/Tokyo

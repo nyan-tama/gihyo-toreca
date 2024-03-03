@@ -1,25 +1,15 @@
 import boto3
-import os
 from jinja2 import Environment, FileSystemLoader # HTMLのテンプレートを使えるようになるライブラリ
 from weasyprint import HTML # HTMLをPDF保存できるライブラリ
 from pdf2image import convert_from_bytes # PDFを画像形式で保存できるライブラリ
-from io import BytesIO # バイトデータを扱う際に、ファイルのように読み書きするためのライブラリ
+from datetime import datetime # 日付用のラブラり
+
 import logging
 
-# AWS S3クライアントを初期化
-s3_client = boto3.client('s3')
-
-# 環境変数からS3バケット名を取得
-bucket_name = os.getenv('S3_BUCKET_NAME')
-
-# 画像をAWS S3バケットにアップロードする関数。
-def upload_image_to_s3(image, bucket_name, object_name):
-    img_byte_arr = BytesIO() # BytesIOオブジェクトを使用して画像をメモリ上に一時保存
-    image.save(img_byte_arr, format='PNG') # 画像をPNG形式で保存
-    img_byte_arr = img_byte_arr.getvalue() # BytesIOオブジェクトからバイト列を取得
-
-    # 取得したバイト列を使用してS3に画像をアップロード
-    s3_client.put_object(Bucket=bucket_name, Key=object_name, Body=img_byte_arr, ContentType='image/png')
+# 画像を保存する関数。
+def save_image(image, file_name):
+    image.save(file_name, format='PNG')  # 画像をPNG形式で指定されたファイル名で保存
+    logging.info(f'画像が保存されました: {file_name}')
 
 # モンスター情報をもとにカードを生成し、画像としてAWS S3にアップロードする関数。
 def generate_card_and_upload_image(monster_info):    
@@ -33,11 +23,14 @@ def generate_card_and_upload_image(monster_info):
     # HTMLからPDFを生成
     pdf_bytes = HTML(string=html_content, base_url=".").write_pdf()
     
-    # PDFを画像に変換
-    image = convert_from_bytes(pdf_bytes)[0]  # 最初の1ページを指定
-    
-    # 最初をS3にアップロード
-    object_name = f"{monster_info['monster_name'].replace(' ', '_')}.png"  # スペースをアンダースコアに置換
-    print(f'{bucket_name}')
-    upload_image_to_s3(image, bucket_name, object_name)
-    logging.info(f'画像が正常にアップロードされました: s3://{bucket_name}/{object_name}')
+    # PDFを画像に変換（最初のページのみ）
+    images = convert_from_bytes(pdf_bytes)
+
+    # 現在の日時を取得してフォーマット (例: 2023-01-01_12-00-00)
+    current_time = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+
+    # ファイル名にモンスターの名前と現在の日時を組み込む
+    file_name = f"{monster_info['monster_name'].replace(' ', '_')}_{current_time}.png"
+
+    # 画像を保存
+    save_image(images[0], file_name)

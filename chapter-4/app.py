@@ -3,6 +3,7 @@ from discord.ext import commands
 import logging
 import os
 from generate_ai import generate_monster_bedrock
+# image_processing.pyに作った『generate_card_and_upload_image』関数を呼び出す
 from image_processing import generate_card_and_upload_image
 
 
@@ -28,7 +29,7 @@ async def make(ctx, *, text: str):
     # Discordから受け取った『text』のメッセージを『generate_monster_bedrock』関数に渡して、生成開始
     monster_info = generate_monster_bedrock(text)
 
-    # 生成したモンスター情報を使用してカードをレイアウトし、画像に変換してS3にアップロード
+    # 生成したモンスター情報を使用してカードをレイアウトし、画像に変換
     generate_card_and_upload_image(monster_info)
     
 bot.run(TOKEN)
