@@ -58,14 +58,14 @@ def invoke_image_model(prompt):
     return response_body['artifacts'][0]['base64']
 
 # AWS Translateを利用してテキストを翻訳する関数です。
-def translate_text(text, source_language_code, target_language_code):
+def translate_japanese_to_english(text, source_language_code, target_language_code):
     # Translateサービスのtranslate_textメソッドを使用して翻訳を実行します。
     response = translate_client.translate_text(
         Text=text,
         SourceLanguageCode=source_language_code,
         TargetLanguageCode=target_language_code
     )
-    # 翻訳されたテキストを返します。
+    # 翻訳されたテキストを返します。　
     return response['TranslatedText']
 
 def generate_prompt_for_name(role_setting, user_request):
@@ -137,8 +137,8 @@ def generate_monster_bedrock(user_request):
 
     # モンスターの画像を生成するためのプロンプトを作成  
     prompt_image = generate_prompt_for_image(user_request, monster_episode)
-    # AWS Translateを利用して英訳する
-    translated_prompt = translate_text(prompt_image, 'ja', 'en')
+    # AWS Translateを利用して英訳する 日→英
+    translated_prompt = translate_japanese_to_english(prompt_image, 'ja', 'en')
 
     # イメージを生成
     monster_image = invoke_image_model(translated_prompt)
