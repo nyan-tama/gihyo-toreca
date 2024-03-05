@@ -30,13 +30,13 @@ Ctrl + C
 ## 本番環境での起動
 ### DockerfileからDockerイメージを作成
 ```
-docker build -t gihyo-toreca .
+docker build --no-cache -t gihyo-toreca .
 ```
 
 ### Dockerの起動
 ```
 # Dockerイメージを起動 
-docker run --rm -it --name app-container -v "$(pwd)":/app -e DISCORD_BOT_TOKEN='あなたのボットのトークン' -e S3_BUCKET_NAME='あなたのS3バケット名' gihyo-toreca
+docker run --rm -it --name app-container -v "$(pwd)":/app -e DISCORD_BOT_TOKEN='あなたのボットのトークン' gihyo-toreca
 ```
 ### 起動確認
 コンテナ起動後にログが表示されれば準備OK

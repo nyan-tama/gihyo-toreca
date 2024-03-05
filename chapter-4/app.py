@@ -26,7 +26,6 @@ async def make(ctx, *, text: str):
 
     await ctx.send("ただいま作成中...")
 
-    # Discordから受け取った『text』のメッセージを『generate_monster_bedrock』関数に渡して、生成開始
     monster_info = generate_monster_bedrock(text)
 
     # 生成したモンスター情報を使用してカードをレイアウトし、画像に変換
