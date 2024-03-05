@@ -30,7 +30,7 @@ Ctrl + C
 ## 本番環境での起動
 ### DockerfileからDockerイメージを作成
 ```
-docker build -t gihyo-toreca .
+docker build --no-cache -t gihyo-toreca .
 ```
 ### Dockerの起動
 ```
