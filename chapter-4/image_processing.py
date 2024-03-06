@@ -5,7 +5,7 @@ from datetime import datetime # 日付用のラブラり
 import logging
 
 # モンスター情報をもとにカードを生成し、画像として保存
-def generate_card_and_upload_image(monster_info):    
+def generate_card(monster_info):    
     template_dir = './templates' # テンプレートファイルが格納されているディレクトリを指定
     env = Environment(loader=FileSystemLoader(template_dir)) # Jinja2テンプレートエンジンを初期化してテンプレートをロード
     template = env.get_template('monster_card_template.html') # 使用するテンプレートを指定
