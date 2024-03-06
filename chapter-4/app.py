@@ -6,7 +6,6 @@ from generate_ai import generate_monster_bedrock
 # image_processing.pyに作った『generate_card』関数を呼び出す
 from image_processing import generate_card
 
-
 TOKEN = os.getenv('DISCORD_BOT_TOKEN')
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s:%(levelname)s: %(message)s')
