@@ -2,7 +2,10 @@ from jinja2 import Environment, FileSystemLoader # HTMLのテンプレートを�
 from weasyprint import HTML # HTMLをPDF保存できるライブラリ
 from pdf2image import convert_from_bytes # PDFを画像形式で保存できるライブラリ
 from datetime import datetime # 日付用のラブラり
+import os # ファイルシステムを操作したりするため
 import logging
+
+
 
 # モンスター情報をもとにカードを生成し、画像として保存
 def generate_card(monster_info):    
@@ -27,4 +30,11 @@ def generate_card(monster_info):
 
     # 画像を保存
     images[0].save(file_name, format='PNG')
+
+    # 保存されたファイルの完全なパスを取得
+    full_path = os.path.abspath(file_name)
+
+    # ログに情報を出力
     logging.info(f'画像が保存されました: {file_name}')
+
+    return full_path

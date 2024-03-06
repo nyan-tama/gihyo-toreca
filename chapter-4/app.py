@@ -28,6 +28,6 @@ async def make(ctx, *, text: str):
     monster_info = generate_monster_bedrock(text)
 
     # 生成したモンスター情報を使用してカードをレイアウトし、画像に変換
-    generate_card(monster_info)
+    image_path = generate_card(monster_info)
     
 bot.run(TOKEN)
