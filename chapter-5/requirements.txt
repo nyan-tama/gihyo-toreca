@@ -1,0 +1,6 @@
+discord.py # 第二回に追加
+boto3 # 第三回に追加
+
+Jinja2 # 第四回に追加
+weasyprint # 第四回に追加
+pdf2image # 第四回に追加
