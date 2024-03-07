@@ -25,7 +25,9 @@ cd chapter-3
 cd chapter-4
 ```
 
-## 第五回目
+## 第五回目：Discordへの画像の送信とS３への画像アップロードを実装してアプリを完成させよう！
 ```bash
+# この回の初めは『cdk-gihyo-toreca』ディレクトリでaws cliの作業します。
+# 準備が整い次第、本ディレクトリ『gihyo-toreca』のchapter-5に移動します
 cd chapter-5
 ```

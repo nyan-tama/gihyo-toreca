@@ -31,12 +31,19 @@ TOKEN = get_secret('DISCORD_BOT_TOKEN')
 
 # S3にアップロードする関数
 def upload_to_s3(file_path):
-    try:
-        # upload_file(ファイルの場所, バケットの名前, ファイル名)
-        s3_client.upload_file(file_path, BUCKET_NAME, os.path.basename(file_path))
-        logging.info(f'{file_path} を {BUCKET_NAME} にアップロードしました。')
-    except Exception as e:
-        logging.error(f"S3へのアップロード中にエラーが発生しました: {e}")
+    max_retries = 3
+    for attempt in range(max_retries):
+        try:
+            # upload_file(ファイルの場所, バケットの名前, ファイル名)
+            s3_client.upload_file(file_path, BUCKET_NAME, os.path.basename(file_path))
+            logging.info(f'{file_path} を {BUCKET_NAME} にアップロードしました。')
+            return
+        except Exception as e:
+            logging.error(f"S3へのアップロード中にエラーが発生しました: {e}")
+            if attempt < max_retries - 1:
+                logging.info(f"リトライ {attempt + 1}/{max_retries}")
+            else:
+                logging.error(f"S3へのアップロードが失敗しました。リトライ上限に達しました: {file_path}")
 
 # Discordの選択肢ボタンの機能
 class ConfirmView(View):
@@ -46,6 +53,7 @@ class ConfirmView(View):
         # 画像パスをインスタンス変数に入れる
         self.file_path = file_path
 
+    # 『はい』ボタンの設定 ボタンの色は緑
     @discord.ui.button(label="はい", style=discord.ButtonStyle.green)
     async def confirm(self, interaction: discord.Interaction, button: Button):
         # S3にアップロードの処理を呼び出し
@@ -58,6 +66,7 @@ class ConfirmView(View):
         # ボタン機能を終了
         self.stop()
 
+    # 『いいえ』ボタンの設定 ボタンの色は灰
     @discord.ui.button(label="いいえ", style=discord.ButtonStyle.grey)
     async def cancel(self, interaction: discord.Interaction, button: Button):
         # ローカルファイルの削除
@@ -81,21 +90,26 @@ async def on_ready():
 
 @bot.command()
 async def make(ctx, *, text: str):
-    logging.info(f'受信したメッセージ: {text}')
+    try:
+        logging.info(f'受信したメッセージ: {text}')
 
-    await ctx.send("ただいま作成中...")
+        await ctx.send("ただいま作成中...")
 
-    monster_info = generate_monster_bedrock(text)
-    image_path = generate_card(monster_info)
+        monster_info = generate_monster_bedrock(text)
+        image_path = generate_card(monster_info)
 
-    # 生成された画像をDiscordに送信
-    await ctx.send(file=discord.File(image_path, filename=os.path.basename(image_path)))
+        # 生成された画像をDiscordに送信
+        await ctx.send(file=discord.File(image_path, filename=os.path.basename(image_path)))
 
-    # ConfirmViewを使ってユーザーに保存するか尋ねる
-    view = ConfirmView(image_path)
-    await ctx.send("S3に保存しますか？", view=view)
+        # ConfirmViewを使ってユーザーに保存するか尋ねる
+        view = ConfirmView(image_path)
+        await ctx.send("S3に保存しますか？", view=view)
 
-    # Viewが停止するのを待ちます（ユーザーがボタンを押すか、タイムアウトするまで）
-    await view.wait()
+        # Viewが停止するのを待ちます（ユーザーがボタンを押すか、タイムアウトするまで）
+        await view.wait()
+
+    except Exception as e:
+        logging.error(f"コマンドの実行中にエラーが発生しました: {e}")
+        await ctx.send("エラーが発生しました。しばらく待ってから再度お試しください。")
 
 bot.run(TOKEN)

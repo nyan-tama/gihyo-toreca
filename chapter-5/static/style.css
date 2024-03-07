@@ -55,7 +55,7 @@ body {
     position: absolute; /* 絶対位置指定 */
     z-index: 3; /* 重なり順序 */
     top: 45px; /* 上端からの位置 */
-    right: 125px; /* 右端からの位置 */
+    right: 124px; /* 右端からの位置 */
     font-size: 3.8em; /* フォントサイズ */
     color: #fff; /* フォントカラー */
     font-weight: 800; /* フォントの太さ */
