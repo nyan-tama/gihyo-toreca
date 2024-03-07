@@ -1,5 +1,6 @@
 import discord
 from discord.ext import commands
+from discord.ui import Button, View
 import logging
 import os
 from generate_ai import generate_monster_bedrock
@@ -33,6 +34,29 @@ intents.message_content = True
 
 bot = commands.Bot(command_prefix='!', intents=intents)
 
+class ConfirmView(View):
+    def __init__(self, file_path,):
+        super().__init__(timeout=60)  # 60秒後にViewが無効になる
+        self.file_path = file_path
+
+    @discord.ui.button(label="はい", style=discord.ButtonStyle.green)
+    async def confirm(self, interaction: discord.Interaction, button: Button):
+        # S3にアップロード
+        with open(self.file_path, 'rb') as file:
+            self.s3_client.upload_fileobj(file, BUCKET_NAME, os.path.basename(self.file_path))
+        logging.info(f'{self.file_path} を {BUCKET_NAME} にアップロードしました。')
+        # ローカルファイルの削除
+        os.remove(self.file_path)
+        await interaction.response.send_message("画像を保存しました！", ephemeral=True)
+        self.stop()
+
+    @discord.ui.button(label="いいえ", style=discord.ButtonStyle.grey)
+    async def cancel(self, interaction: discord.Interaction, button: Button):
+        # ローカルファイルの削除
+        os.remove(self.file_path)
+        await interaction.response.send_message("画像を保存しませんでした。", ephemeral=True)
+        self.stop()
+
 @bot.event
 async def on_ready():
     logging.info(f'Botが準備できました: {bot.user}')
@@ -44,26 +68,17 @@ async def make(ctx, *, text: str):
     await ctx.send("ただいま作成中...")
 
     monster_info = generate_monster_bedrock(text)
-
     image_path = generate_card(monster_info)
 
     # 生成された画像をDiscordに送信
     with open(image_path, 'rb') as file:
-        # Discordに画像を送信
-        await ctx.send(file=discord.File(file, filename=image_path))
+        await ctx.send(file=discord.File(file, filename=os.path.basename(image_path)))
 
-        # ファイルの読み込み位置を先頭に戻す
-        file.seek(0)
+    # ConfirmViewを使ってユーザーに保存するか尋ねる
+    view = ConfirmView(image_path)
+    await ctx.send("S3に保存しますか？", view=view)
 
-        # 画像をS3にアップロード
-        s3_client.upload_fileobj(file, BUCKET_NAME, os.path.basename(image_path))
-
-        logging.info(f'{image_path} を {BUCKET_NAME} にアップロードしました。')
-
-    # ローカルのファイルを削除
-    os.remove(image_path)
-    logging.info(f'ローカル上のファイル {image_path} は削除しました。')
-    
-    logging.info(f'すべての処理が完了しました。')
+    # Viewが停止するのを待ちます（ユーザーがボタンを押すか、タイムアウトするまで）
+    await view.wait()
 
 bot.run(TOKEN)
