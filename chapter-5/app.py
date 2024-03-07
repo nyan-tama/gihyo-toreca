@@ -22,10 +22,50 @@ def get_secret(secret_name):
         logging.error(f"シークレットの取得中にエラーが発生しました: {e}")
         return None
 
-# シークレット名を指定してDiscord BotのTOKENを取得
-TOKEN = get_secret('DISCORD_BOT_TOKEN') 
 # シークレット名を指定しS3のBUCKET名を取得
 BUCKET_NAME = get_secret('MY_S3_BUCKET_NAME')
+
+# シークレット名を指定してDiscord BotのTOKENを取得
+# TOKEN = os.getenv('DISCORD_BOT_TOKEN') こちらを廃止して下記に置き換え
+TOKEN = get_secret('DISCORD_BOT_TOKEN') 
+
+# S3にアップロードする関数
+def upload_to_s3(file_path):
+    try:
+        # upload_file(ファイルの場所, バケットの名前, ファイル名)
+        s3_client.upload_file(file_path, BUCKET_NAME, os.path.basename(file_path))
+        logging.info(f'{file_path} を {BUCKET_NAME} にアップロードしました。')
+    except Exception as e:
+        logging.error(f"S3へのアップロード中にエラーが発生しました: {e}")
+
+# Discordの選択肢ボタンの機能
+class ConfirmView(View):
+    def __init__(self, file_path):
+        # ボタンの押せる有効時間を1分間に設定
+        super().__init__(timeout=60)
+        # 画像パスをインスタンス変数に入れる
+        self.file_path = file_path
+
+    @discord.ui.button(label="はい", style=discord.ButtonStyle.green)
+    async def confirm(self, interaction: discord.Interaction, button: Button):
+        # S3にアップロードの処理を呼び出し
+        upload_to_s3(self.file_path)
+
+        # ローカルファイルの削除
+        os.remove(self.file_path)
+        #「画像を保存しました！」というメッセージを送信
+        await interaction.response.send_message("画像を保存しました！")
+        # ボタン機能を終了
+        self.stop()
+
+    @discord.ui.button(label="いいえ", style=discord.ButtonStyle.grey)
+    async def cancel(self, interaction: discord.Interaction, button: Button):
+        # ローカルファイルの削除
+        os.remove(self.file_path)
+        #「画像を保存しませんでした。」というメッセージを送信
+        await interaction.response.send_message("画像を保存しませんでした。")
+        #ボタン機能を終了
+        self.stop()
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s:%(levelname)s: %(message)s')
 
@@ -34,28 +74,6 @@ intents.message_content = True
 
 bot = commands.Bot(command_prefix='!', intents=intents)
 
-class ConfirmView(View):
-    def __init__(self, file_path,):
-        super().__init__(timeout=60)  # 60秒後にViewが無効になる
-        self.file_path = file_path
-
-    @discord.ui.button(label="はい", style=discord.ButtonStyle.green)
-    async def confirm(self, interaction: discord.Interaction, button: Button):
-        # S3にアップロード
-        with open(self.file_path, 'rb') as file:
-            self.s3_client.upload_fileobj(file, BUCKET_NAME, os.path.basename(self.file_path))
-        logging.info(f'{self.file_path} を {BUCKET_NAME} にアップロードしました。')
-        # ローカルファイルの削除
-        os.remove(self.file_path)
-        await interaction.response.send_message("画像を保存しました！", ephemeral=True)
-        self.stop()
-
-    @discord.ui.button(label="いいえ", style=discord.ButtonStyle.grey)
-    async def cancel(self, interaction: discord.Interaction, button: Button):
-        # ローカルファイルの削除
-        os.remove(self.file_path)
-        await interaction.response.send_message("画像を保存しませんでした。", ephemeral=True)
-        self.stop()
 
 @bot.event
 async def on_ready():
@@ -71,8 +89,7 @@ async def make(ctx, *, text: str):
     image_path = generate_card(monster_info)
 
     # 生成された画像をDiscordに送信
-    with open(image_path, 'rb') as file:
-        await ctx.send(file=discord.File(file, filename=os.path.basename(image_path)))
+    await ctx.send(file=discord.File(image_path, filename=os.path.basename(image_path)))
 
     # ConfirmViewを使ってユーザーに保存するか尋ねる
     view = ConfirmView(image_path)

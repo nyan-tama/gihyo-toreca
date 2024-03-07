@@ -27,7 +27,7 @@ Ctrl + C
 docker build --no-cache -t gihyo-toreca .
 ```
 
-### Dockerの起動 第５回ではSecret Managerを設定したので、環境変数のオプションは不要になります。
+### Dockerの起動 第五回ではSecret Managerを設定したので、環境変数のオプションは不要になります。
 ```
 # Dockerイメージを起動 
 docker run --rm -it --name app-container -v "$(pwd)":/app gihyo-toreca
