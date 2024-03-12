@@ -1,1 +1,1 @@
-discord.py # 第二回に追加
+discord.py # 第2回に追加

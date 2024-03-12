@@ -1,2 +1,2 @@
-discord.py # 第二回に追加
-boto3 # 第三回に追加
+discord.py # 第2回に追加
+boto3 # 第3回に追加
