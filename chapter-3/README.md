@@ -11,7 +11,7 @@ docker-compose up
 ```
 
 ```
-※もしDockerfileおよびrequirements.txtを修正した場合はbuildし直し、起動し直す
+# requirements.txtを修正した場合は一度buildし直し直してから起動する
 docker-compose build --no-cache
 docker-compose up
 ```
