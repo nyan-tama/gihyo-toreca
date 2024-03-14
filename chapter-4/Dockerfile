@@ -4,7 +4,7 @@ FROM python:3.9
 # 作業ディレクトリを設定
 WORKDIR /app
 
-# 第四回用のpoppler-utilsのインストール
+# 第4回用のpoppler-utilsのインストール
 RUN apt-get update && \
     apt-get install -y poppler-utils
 
